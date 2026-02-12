@@ -1,0 +1,35 @@
+clc
+clear
+L = 200e-3;
+V0 = 1/sqrt(2);
+b_matrix_ansys=[118.022033 -6.156154;
+                -6.156154 117.764573]*10^-12;
+L_matrix_ansys=[292.681725 35.968671
+                35.968671 292.681243]*10^-9;
+
+a_matrix_ansys = L_matrix_ansys * b_matrix_ansys
+
+a11 = a_matrix_ansys(1,1);
+a22 = a_matrix_ansys(2,2);
+a12 = a_
+a_sum = a11+a22;
+
+syms c_m V_matrix
+
+eqn = (1/(c_m^2))^2 - (a11+a22)*(1/(c_m^2))+a11*a22 == 0;
+cm_sol = solve(eqn, c_m);
+cm_num = double(cm_sol);
+M = reshape(cm_num, 2, 2);
+C_m_matrix = [M(2,2) 0;
+              0 M(2,1)];
+C_m1 = M(2,2);
+C_m2 = M(2,1);
+
+V_01_matrix = [1 ; 1] * V0;
+V_02_matrix = [1 ; -1] * V0;
+S1 = [1/C_m1^2-a11];
+S2 = 1/C_m2^2*V_02_matrix - L_matrix_ansys * b_matrix_ansys;
+
+t1 = L/M(2,2);
+t2 = L/M(2,1);
+t_matrix = [t1;t2];

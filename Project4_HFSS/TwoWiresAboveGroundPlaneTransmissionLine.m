@@ -1,0 +1,45 @@
+clc
+clear
+
+d = 10e-3;
+h = d;
+D = sqrt(d^2+4*h^2);
+a = 1e-3;
+epsilon = 8.854E-12;
+mu = 4*pi*10^-7;
+
+a11 = 1/(2*pi*epsilon) * log(2*h/a);
+a22 = a11;
+a12 = 1/(2*pi*epsilon) * log(D/d);
+a21 = a12;
+
+a_matrix = [a11 a12;
+            a21 a22];
+b_maxtrix = a_matrix^-1;
+L_matrix = epsilon * mu * b_maxtrix^-1;
+
+b_matrix_ansys=[20.060474 -5.404791;
+                -5.404791 20.060296]*10^-12;
+L_matrix_ansys=[598.837767 161.149314;
+                161.149314 598.838501]*10^-9;
+
+a_matrix_ansys = L_matrix_ansys * b_matrix_ansys;
+
+a11 = a_matrix_ansys(1,1);
+a22 = a_matrix_ansys(2,2);
+a_sum = a11+a22;
+
+syms c_m
+
+eqn = (1/(c_m^2))^2 - (a11+a22)*(1/(c_m^2))+a11*a22 == 0;
+cm_sol = solve(eqn, c_m);
+cm_num = double(cm_sol);
+M = reshape(cm_num, 2, 2);
+
+V0 = 1/sqrt(2);
+matrix = [1 1; 1 -1];
+S_v_matrix = matrix * V0;
+Lambda_matrix = [1/M(2,2) 0;
+                 0 1/M(2,1)];
+S_I_matrix = L_matrix_ansys^-1*S_v_matrix*Lambda_matrix;
+Z0_matrix = S_v_matrix*S_I_matrix^-1;
